@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
   <Tracking>
+    <ImageTarget name="HP" size="1.000000 1.508609" />
+    <ImageTarget name="MazeRunner" size="1.000000 1.450320" />
     <ImageTarget name="laptop" size="1.000000 1.561671" />
     <ImageTarget name="better_draw" size="1.000000 0.750000" />
     <ImageTarget name="draw" size="1.000000 1.333333" />
