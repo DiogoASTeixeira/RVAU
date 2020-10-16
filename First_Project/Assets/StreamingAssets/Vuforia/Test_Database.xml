@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
   <Tracking>
+    <ImageTarget name="laptop" size="1.000000 1.561671" />
+    <ImageTarget name="better_draw" size="1.000000 0.750000" />
+    <ImageTarget name="draw" size="1.000000 1.333333" />
+    <ImageTarget name="phone" size="1.000000 1.873540" />
+    <ImageTarget name="Paper" size="1.000000 1.333333" />
     <ImageTarget name="book" size="1.000000 1.413736" />
     <ImageTarget name="maze" size="0.100000 0.100279" />
     <ImageTarget name="sniper" size="1.000000 1.000000" />
