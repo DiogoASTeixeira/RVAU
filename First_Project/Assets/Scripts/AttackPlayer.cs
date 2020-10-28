@@ -6,6 +6,7 @@ using UnityEngine;
 public class AttackPlayer : MonoBehaviour
 {
     private readonly static float ATTACK_DAMAGE = 0.1f;
+    public GameObject playerObject;
 
     // Start is called before the first frame update
     void Start(){}
@@ -15,9 +16,24 @@ public class AttackPlayer : MonoBehaviour
 
     private void OnTriggerEnter(Collider collider)
     {
-        if(collider.tag == "Enemy")
+        float damage_mod = 1;
+        if(collider.CompareTag("Enemy"))
         {
-            collider.gameObject.GetComponent<HealthScript>().DamageHealth(ATTACK_DAMAGE);
+            PlayerScript.Stance playerStance = playerObject.GetComponent<PlayerScript>().getStance();
+            switch(playerStance)
+            {
+                case PlayerScript.Stance.Defend:
+                    {
+                        damage_mod *= 0.1f;
+                        break;
+                    }
+                case PlayerScript.Stance.Attack:
+                    {
+                        damage_mod *= 5f;
+                        break;
+                    }
+            }
+            collider.gameObject.GetComponent<EnemyScript>().DamageHealth(ATTACK_DAMAGE * damage_mod);
         }
     }
 }
