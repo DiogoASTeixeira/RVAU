@@ -17,8 +17,13 @@ public class PlayerScript : MonoBehaviour
     void Start()
     {
         currentStance = Stance.Attack;
+
+        var mainPS = particleSystem.main;
+        mainPS.startColor = new Color(0.85f, 0.30f, 0.17f);
+
         var emission = particleSystem.emission;
         emission.enabled = true;
+
     }
 
     // Update is called once per frame
@@ -27,7 +32,7 @@ public class PlayerScript : MonoBehaviour
         
     }
 
-    public void changeStance(Stance stance)
+    public void ChangeStance(Stance stance)
     {
         if(stance != currentStance)
         {

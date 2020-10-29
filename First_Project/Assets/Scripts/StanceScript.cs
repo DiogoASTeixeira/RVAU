@@ -22,7 +22,7 @@ public class StanceScript : MonoBehaviour
     {
         if(collider.CompareTag("Player"))
         {
-            playerObject.GetComponent<PlayerScript>().changeStance(stance);
+            playerObject.GetComponent<PlayerScript>().ChangeStance(stance);
         }
     }
 }
