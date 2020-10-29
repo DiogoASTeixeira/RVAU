@@ -4,19 +4,21 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
-
     public enum Stance
     {
         Attack,
         Defend
     }
+    public ParticleSystem particleSystem;
 
-    private Stance currentStance = Stance.Attack;
+    private Stance currentStance;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        currentStance = Stance.Attack;
+        var emission = particleSystem.emission;
+        emission.enabled = true;
     }
 
     // Update is called once per frame
@@ -29,17 +31,19 @@ public class PlayerScript : MonoBehaviour
     {
         if(stance != currentStance)
         {
-            switch(stance)
+            currentStance = stance;
+            var mainPS = particleSystem.main;
+            switch (stance)
             {
                 case Stance.Attack:
                     {
-
-
+                        mainPS.startColor = new Color(0.85f, 0.30f, 0.17f);
                         //TODO animation change, etc
                         break;
                     }
                 case Stance.Defend:
                     {
+                        mainPS.startColor = new Color(0.17f, 0.19f, 0.85f);
                         //TODO animation change, etc
                         break;
                     }

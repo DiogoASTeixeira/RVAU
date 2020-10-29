@@ -4,27 +4,25 @@ using UnityEngine;
 
 public class StanceScript : MonoBehaviour
 {
-
     public PlayerScript.Stance stance;
+    public GameObject playerObject;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        //particleSystem = gameObject.GetComponent<ParticleSystem>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider collider)
     {
-
-        if(collision.gameObject.CompareTag("Player"))
+        if(collider.CompareTag("Player"))
         {
-            collision.gameObject.GetComponent<PlayerScript>().changeStance(stance);
+            playerObject.GetComponent<PlayerScript>().changeStance(stance);
         }
     }
 }
