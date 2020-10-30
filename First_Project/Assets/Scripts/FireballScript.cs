@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class FireballScript : MonoBehaviour
 {
-    private readonly float DAMAGE_VALUE = 0.2f;
+    private readonly float DAMAGE_VALUE = 0.1f;
 
     // Start is called before the first frame update
     void Start()

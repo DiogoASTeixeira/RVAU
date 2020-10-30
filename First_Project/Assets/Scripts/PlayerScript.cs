@@ -14,10 +14,12 @@ public class PlayerScript : MonoBehaviour
 #pragma warning disable CS0108 // Member hides inherited member; missing new keyword
     public ParticleSystem particleSystem;
 #pragma warning restore CS0108 // Member hides inherited member; missing new keyword
+
     public Animator animator;
     public Image healthBar;
 
     private Stance currentStance;
+    private readonly float MAX_HEALTH = 1.0f;
     private float health;
     private bool isDead = false;
 
@@ -32,7 +34,13 @@ public class PlayerScript : MonoBehaviour
         var emission = particleSystem.emission;
         emission.enabled = true;
 
-        health = 1.0f;
+        health = MAX_HEALTH;
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
 
     }
 
@@ -43,15 +51,29 @@ public class PlayerScript : MonoBehaviour
             return;
         }
 
-        health -= damage;
-        healthBar.fillAmount = health;
+        float dmgMod = 1.0f;
+
+        switch (currentStance)
+        {
+            case Stance.Attack:
+                {
+                    dmgMod = 1.0f;
+                    break;
+                }
+            case Stance.Defend:
+                {
+                    dmgMod = 0.2f;
+                    break;
+                }
+        }
+
+        health -= damage * dmgMod;
+        healthBar.fillAmount = health / MAX_HEALTH;
 
         if (health <= 0)
         {
             LossPlayer();
         }
-
-
     }
 
     public void WinPlayer()
@@ -70,12 +92,6 @@ public class PlayerScript : MonoBehaviour
             yield return new WaitForSeconds(4);
             gameObject.SetActive(false);
         }
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     public void ChangeStance(Stance stance)
@@ -102,7 +118,7 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    public Stance getStance()
+    public Stance GetStance()
     {
         return currentStance;
     }

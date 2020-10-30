@@ -15,6 +15,7 @@ public class EnemyScript : MonoBehaviour
     public GameObject projectile;
     public GameObject worldObject;
 
+    private readonly float MAX_HEALTH = 1.0f;
     private float health;
     private bool isDead = false;
     private readonly float shootForce = 100.0f;
@@ -22,8 +23,8 @@ public class EnemyScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        health = 1.0f;
-        InvokeRepeating(nameof(LaunchProjectile), 0.5f, 0.5f);
+        health = MAX_HEALTH;
+        InvokeRepeating(nameof(LaunchProjectile), 2.0f, 2.0f);
     }
 
     // Update is called once per frame
@@ -48,7 +49,7 @@ public class EnemyScript : MonoBehaviour
         Vector3 currPosition = transform.position;
         Vector3 playerPosition = playerObject.transform.position + new Vector3(0.0f, 0.5f, 0.0f);
 
-        float strength = 0.8f;
+        float strength = 0.2f;
         Quaternion targetRotation = Quaternion.LookRotation(playerPosition - currPosition);
         strength = Mathf.Min(strength * Time.deltaTime, 1); //Avoid overshoot
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, strength);
@@ -61,7 +62,7 @@ public class EnemyScript : MonoBehaviour
         }
 
         health -= damage;
-        healthBar.fillAmount = health;
+        healthBar.fillAmount = health / MAX_HEALTH;
 
         if(health <= 0) {
             anim.SetTrigger("Dead");

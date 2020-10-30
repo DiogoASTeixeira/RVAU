@@ -19,17 +19,17 @@ public class AttackPlayer : MonoBehaviour
         float damage_mod = 1;
         if(collider.CompareTag("Enemy"))
         {
-            PlayerScript.Stance playerStance = playerObject.GetComponent<PlayerScript>().getStance();
+            PlayerScript.Stance playerStance = playerObject.GetComponent<PlayerScript>().GetStance();
             switch(playerStance)
             {
                 case PlayerScript.Stance.Defend:
                     {
-                        damage_mod *= 0.1f;
+                        damage_mod *= 0.03f;
                         break;
                     }
                 case PlayerScript.Stance.Attack:
                     {
-                        damage_mod *= 0.01f;
+                        damage_mod *= 0.1f;
                         break;
                     }
             }
