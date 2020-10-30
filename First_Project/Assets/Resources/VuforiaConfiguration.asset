@@ -22,8 +22,8 @@ MonoBehaviour:
     virtualSceneScaleFactor: 1
     useDelayedLoadingObjectTargets: 0
     modelTargetRecoWhileExtendedTracked: 1
-    version: 9.4.6
-    eulaAcceptedVersions: '{"Values":["9.4","8.1","8.5"]}'
+    version: 9.5.4
+    eulaAcceptedVersions: '{"Values":["9.4","8.1","8.5","9.5"]}'
   database:
     disableModelExtraction: 0
   videoBackground:

@@ -67,17 +67,12 @@ public class EnemyScript : MonoBehaviour
             anim.SetTrigger("Dead");
             isDead = true;
             StartCoroutine(removeEnemy());
-            WinPlayer();
+            playerObject.GetComponent<PlayerScript>().WinPlayer();
         }
 
         IEnumerator removeEnemy() {
             yield return new WaitForSeconds(3);
             character.SetActive(false);
-        }
-
-        void WinPlayer() {
-            Animator player = playerObject.GetComponent<Animator>();
-            player.SetTrigger("Win");
         }
     }
 }
