@@ -29,7 +29,7 @@ public class AttackPlayer : MonoBehaviour
                     }
                 case PlayerScript.Stance.Attack:
                     {
-                        damage_mod *= 0.1f;
+                        damage_mod *= 1.0f;
                         break;
                     }
             }

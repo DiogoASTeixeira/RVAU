@@ -12,18 +12,26 @@ public class EnemyScript : MonoBehaviour
     public Image healthBar;
     public GameObject character;
     public GameObject playerObject;
-    public GameObject projectile;
+    public GameObject fireball;
+    public GameObject deathSphere;
+    public ParticleSystem deathSpherePS;
     public GameObject worldObject;
 
     private readonly float MAX_HEALTH = 1.0f;
+    private readonly float SHOOT_FORCE = 100.0f;
+    private readonly float SPHERE_DURATION = 5.0f;
+
     private float health;
     private bool isDead = false;
-    private readonly float shootForce = 100.0f;
+    private bool secondPhase = false;
 
     // Start is called before the first frame update
     void Start()
     {
         health = MAX_HEALTH;
+        deathSpherePS = Instantiate(deathSpherePS, transform.position, transform.rotation);
+        deathSpherePS.transform.parent = worldObject.transform;
+        deathSpherePS.Stop();
         InvokeRepeating(nameof(LaunchProjectile), 2.0f, 2.0f);
     }
 
@@ -31,14 +39,38 @@ public class EnemyScript : MonoBehaviour
     void Update()
     {
         AdjustRotation();
+        if(!secondPhase && health <= MAX_HEALTH / 2.0f)
+            EnterSecondPhase();
+    }
+
+    private void EnterSecondPhase()
+    {
+        secondPhase = true;
+        InvokeRepeating(nameof(DeathSphereSetup), 0.0f, 10.0f);
     }
 
     private void LaunchProjectile()
     {
-        GameObject shot = Instantiate(projectile, transform.position + new Vector3(0.0f, 0.2f, 0.1f), transform.rotation);
+        GameObject shot = Instantiate(fireball, transform.position + new Vector3(0.0f, 0.2f, 0.1f), transform.rotation);
         shot.transform.parent = worldObject.transform;
-        shot.GetComponent<Rigidbody>().AddForce(transform.forward * shootForce);
+        shot.GetComponent<Rigidbody>().AddForce(transform.forward * SHOOT_FORCE);
         Destroy(shot, 2.0f);
+    }
+
+    private void DeathSphereSetup()
+    {
+        deathSpherePS.Play();
+        StartCoroutine(CreateDeathSphere());
+
+        GameObject sphere = Instantiate(deathSphere, transform.position, transform.rotation);
+        sphere.transform.parent = worldObject.transform;
+        Destroy(sphere, SPHERE_DURATION);
+
+        IEnumerator CreateDeathSphere()
+        {
+            yield return new WaitForSeconds(SPHERE_DURATION);
+            deathSpherePS.Stop();
+        }
     }
 
     /**
@@ -65,13 +97,22 @@ public class EnemyScript : MonoBehaviour
         healthBar.fillAmount = health / MAX_HEALTH;
 
         if(health <= 0) {
-            anim.SetTrigger("Dead");
-            isDead = true;
-            StartCoroutine(removeEnemy());
-            playerObject.GetComponent<PlayerScript>().WinPlayer();
+            OnDeath();
         }
 
-        IEnumerator removeEnemy() {
+       
+    }
+
+    private void OnDeath()
+    {
+        CancelInvoke();
+        anim.SetTrigger("Dead");
+        isDead = true;
+        StartCoroutine(removeEnemy());
+        playerObject.GetComponent<PlayerScript>().WinPlayer();
+
+        IEnumerator removeEnemy()
+        {
             yield return new WaitForSeconds(3);
             character.SetActive(false);
         }
