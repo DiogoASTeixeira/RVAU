@@ -19,7 +19,8 @@ public class EnemyScript : MonoBehaviour
 
     private readonly float MAX_HEALTH = 1.0f;
     private readonly float SHOOT_FORCE = 100.0f;
-    private readonly float SPHERE_DURATION = 5.0f;
+    private readonly float SPHERE_DELAY= 2.5f;
+    private readonly float SPHERE_DURATION = 8.5f;
 
     private float health;
     private bool isDead = false;
@@ -39,14 +40,14 @@ public class EnemyScript : MonoBehaviour
     void Update()
     {
         AdjustRotation();
-        if(!secondPhase && health <= MAX_HEALTH / 2.0f)
+        if(!secondPhase && health <= MAX_HEALTH )// / 2.0f)
             EnterSecondPhase();
     }
 
     private void EnterSecondPhase()
     {
         secondPhase = true;
-        InvokeRepeating(nameof(DeathSphereSetup), 0.0f, 10.0f);
+        InvokeRepeating(nameof(DeathSphereSetup), 0.0f, 15.0f);
     }
 
     private void LaunchProjectile()
@@ -60,13 +61,18 @@ public class EnemyScript : MonoBehaviour
     private void DeathSphereSetup()
     {
         deathSpherePS.Play();
+        StartCoroutine(StopCloud());
+
         StartCoroutine(CreateDeathSphere());
 
-        GameObject sphere = Instantiate(deathSphere, transform.position, transform.rotation);
-        sphere.transform.parent = worldObject.transform;
-        Destroy(sphere, SPHERE_DURATION);
-
         IEnumerator CreateDeathSphere()
+        {
+            yield return new WaitForSeconds(SPHERE_DELAY);
+            GameObject sphere = Instantiate(deathSphere, transform.position, transform.rotation);
+            sphere.transform.parent = worldObject.transform;
+        }
+
+        IEnumerator StopCloud()
         {
             yield return new WaitForSeconds(SPHERE_DURATION);
             deathSpherePS.Stop();

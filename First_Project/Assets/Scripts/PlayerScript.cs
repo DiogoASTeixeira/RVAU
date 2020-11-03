@@ -105,13 +105,13 @@ public class PlayerScript : MonoBehaviour
                 case Stance.Attack:
                     {
                         mainPS.startColor = new Color(0.85f, 0.30f, 0.17f);
-                        //TODO animation change, etc
+                        animator.SetTrigger("Attack");
                         break;
                     }
                 case Stance.Defend:
                     {
                         mainPS.startColor = new Color(0.17f, 0.19f, 0.85f);
-                        //TODO animation change, etc
+                        animator.SetTrigger("Defend");
                         break;
                     }
             }

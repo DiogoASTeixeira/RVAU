@@ -35,7 +35,7 @@ public class SkillScript : MonoBehaviour
             {
                 Destroy(elem);
             }
-            PlaceSkillOnCooldown();
+            //PlaceSkillOnCooldown();
         }
     }
 
