@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.TextCore.LowLevel;
 using UnityEngine.UI;
 
@@ -40,7 +41,7 @@ public class EnemyScript : MonoBehaviour
     void Update()
     {
         AdjustRotation();
-        if(!secondPhase && health <= MAX_HEALTH )// / 2.0f)
+        if(!secondPhase && health <= MAX_HEALTH / 2.0f)
             EnterSecondPhase();
     }
 
@@ -121,6 +122,7 @@ public class EnemyScript : MonoBehaviour
         {
             yield return new WaitForSeconds(3);
             character.SetActive(false);
+            SceneManager.LoadScene(0);
         }
     }
 }

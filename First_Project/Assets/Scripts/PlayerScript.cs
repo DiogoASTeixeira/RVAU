@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerScript : MonoBehaviour
@@ -17,6 +19,8 @@ public class PlayerScript : MonoBehaviour
 
     public Animator animator;
     public Image healthBar;
+    public TextMeshPro WinText;
+    public TextMeshPro LossText;
 
     private Stance currentStance;
     private readonly float MAX_HEALTH = 1.0f;
@@ -26,6 +30,9 @@ public class PlayerScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+      //  WinText.gameObject.SetActive(false);
+        //LossText.gameObject.SetActive(false);
+
         currentStance = Stance.Attack;
 
         var mainPS = particleSystem.main;
@@ -78,11 +85,13 @@ public class PlayerScript : MonoBehaviour
 
     public void WinPlayer()
     {
+        //WinText.gameObject.SetActive(true);
         animator.SetTrigger("Win");
     }
 
     public void LossPlayer()
     {
+        //LossText.gameObject.SetActive(true);
         animator.SetTrigger("Loss");
         isDead = true;
         StartCoroutine(removePlayer());
@@ -91,6 +100,7 @@ public class PlayerScript : MonoBehaviour
         {
             yield return new WaitForSeconds(4);
             gameObject.SetActive(false);
+            SceneManager.LoadScene(0);
         }
     }
 
