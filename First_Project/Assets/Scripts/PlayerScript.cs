@@ -19,8 +19,8 @@ public class PlayerScript : MonoBehaviour
 
     public Animator animator;
     public Image healthBar;
-    public TextMeshPro WinText;
-    public TextMeshPro LossText;
+    public TextMeshProUGUI WinText;
+    public TextMeshProUGUI LossText;
 
     private Stance currentStance;
     private readonly float MAX_HEALTH = 1.0f;
@@ -30,8 +30,8 @@ public class PlayerScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-      //  WinText.gameObject.SetActive(false);
-        //LossText.gameObject.SetActive(false);
+        WinText.gameObject.SetActive(false);
+        LossText.gameObject.SetActive(false);
 
         currentStance = Stance.Attack;
 
@@ -85,13 +85,13 @@ public class PlayerScript : MonoBehaviour
 
     public void WinPlayer()
     {
-        //WinText.gameObject.SetActive(true);
+        WinText.gameObject.SetActive(true);
         animator.SetTrigger("Win");
     }
 
     public void LossPlayer()
     {
-        //LossText.gameObject.SetActive(true);
+        LossText.gameObject.SetActive(true);
         animator.SetTrigger("Loss");
         isDead = true;
         StartCoroutine(removePlayer());
