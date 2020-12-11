@@ -32,7 +32,7 @@ def stackImages(imgArray,scale,lables=[]):
         for x in range(0, rows):
             for y in range(0, cols):
                 imgArray[x][y] = cv2.resize(imgArray[x][y], (sizeW,sizeH), None, scale, scale)
-                if len(imgArray[x][y].shape) == 2 : imgArray[x][y]= cv2.cvtColor(imgArray[x][y], cv2.COLOR_GRAY2BGR)
+                if len(imgArray[x][y].shape) == 2 : imgArray[x][y] = cv2.cvtColor(imgArray[x][y], cv2.COLOR_GRAY2BGR)
         imageBlank = np.zeros((sizeH, sizeW, 3), np.uint8)
         hor = [imageBlank]*rows
         hor_con = [imageBlank]*rows
@@ -55,7 +55,7 @@ def stackImages(imgArray,scale,lables=[]):
         print(eachImgHeight)
 
         for d in range(0, rows):
-            for c in range (0,cols):
+            for c in range (0, cols):
                 cv2.rectangle(ver,(c*eachImgWidth, eachImgHeight*d), (c*eachImgWidth+len(lables[d]) * 13 + 27, 30 + eachImgHeight * d), (255, 255, 255), cv2.FILLED)
                 cv2.putText(ver, lables[d], (eachImgWidth*c+10, eachImgHeight*d+20), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 0, 255), 2)
     return ver
@@ -83,61 +83,51 @@ while True:
         if m.distance < 0.75 * n.distance:
             good2.append(m)
 
-    print(len(good2))
-
+    #print(len(good2))
     #print(len(good))                                                                                                    //number of good matches
+
     imgFeatures = cv2.drawMatches(imgTarget, kp1, imgWebcam, kpW, good, None, flags=2)
     imgFeatures2 = cv2.drawMatches(imgTarget2, kp2, imgWebcam, kpW, good2, None, flags=2)
 
-    if len(good) > 20:
-        print("entrei lord")
+    if len(good) > 20 and len(good2) > 20:
         srcPts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
         dstPts = np.float32([kpW[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
         matrix, mask = cv2.findHomography(srcPts, dstPts, cv2.RANSAC, 5)
+
+        srcPts2 = np.float32([kp2[m.queryIdx].pt for m in good2]).reshape(-1, 1, 2)
+        dstPts2 = np.float32([kpW[m.trainIdx].pt for m in good2]).reshape(-1, 1, 2)
+        matrix2, mask2 = cv2.findHomography(srcPts2, dstPts2, cv2.RANSAC, 5)
+
         #print(matrix)                                                                                                         //matrix for debug
 
         pts = np.float32([[0, 0], [0,hT], [wT, hT], [wT, 0]]).reshape(-1, 1, 2)
         dst = cv2.perspectiveTransform(pts, matrix)
         img2 = cv2.polylines(imgWebcam, [np.int32(dst)], True, (255, 0, 255), 3)
 
-        imgWarp = cv2.warpPerspective(imgOverlay, matrix, (imgWebcam.shape[1], imgWebcam.shape[0]))
-        #cv2.imshow('img2', img2)                                                                       #//polylines debug (outline)
-        #cv2.imshow('imgWarp', imgWarp)                                                                 #//warp debug
-
-        imgAug = cv2.bitwise_or(imgWarp, imgAug)
-
-        imgStacked = stackImages(([imgWebcam, imgOverlay, imgTarget], [imgFeatures, imgWarp, imgAug]), 0.5)
-
-        #cv2.imshow('mask', maskInv)
-        #cv2.imshow('aug', imgAug)
-        #cv2.imshow('Aug', imgAug)
-        #cv2.imshow('stack', imgStacked)
-
-    elif len(good2) > 20:
-        print("entrei kung")
-        srcPts2 = np.float32([kp2[m.queryIdx].pt for m in good2]).reshape(-1, 1, 2)
-        dstPts2 = np.float32([kpW[m.trainIdx].pt for m in good2]).reshape(-1, 1, 2)
-        matrix2, mask2 = cv2.findHomography(srcPts2, dstPts2, cv2.RANSAC, 5)
-        #print(matrix)                                                                                                         //matrix for debug
-
         pts2 = np.float32([[0, 0], [0,hT2], [wT2, hT2], [wT2, 0]]).reshape(-1, 1, 2)
         dst2 = cv2.perspectiveTransform(pts2, matrix2)
         img3 = cv2.polylines(imgWebcam, [np.int32(dst2)], True, (255, 0, 255), 3)
 
+        imgWarp = cv2.warpPerspective(imgOverlay, matrix, (imgWebcam.shape[1], imgWebcam.shape[0]))
         imgWarp2 = cv2.warpPerspective(imgOverlay2, matrix2, (imgWebcam.shape[1], imgWebcam.shape[0]))
+
         #cv2.imshow('img2', img2)                                                                       #//polylines debug (outline)
         #cv2.imshow('imgWarp', imgWarp)                                                                 #//warp debug
 
+        imgAug = cv2.bitwise_or(imgWarp, imgAug)
         imgAug2 = cv2.bitwise_or(imgWarp2, imgAug2)
 
-        imgStacked2 = stackImages(([imgWebcam, imgOverlay2, imgTarget2], [imgFeatures2, imgWarp2, imgAug2]), 0.5)
+        imgWebcam = cv2.bitwise_or(imgWarp, imgWebcam)
+        imgWebcam = cv2.bitwise_or(imgWarp2, imgWebcam)
+
+        imgStacked = stackImages(([imgFeatures, imgWebcam, imgAug], [imgFeatures2, imgWebcam, imgAug2]), 0.5)
 
         #cv2.imshow('mask', maskInv)
         #cv2.imshow('aug', imgAug)
         #cv2.imshow('Aug', imgAug)
-        #cv2.imshow('stack', imgStacked2)
+        cv2.imshow('stack', imgStacked)                                                                 #//DEBUG MODE
 
-    #cv2.imshow('imgFeatures', imgFeatures2)                                                             #//Debug mode matches
+    #cv2.imshow('imgFeatures', imgFeatures2)                                                             //Debug mode matches
     cv2.imshow('Poster', imgTarget)
     cv2.imshow('Poster2', imgTarget2)
     cv2.imshow('Webcam', imgWebcam)
