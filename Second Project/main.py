@@ -1,21 +1,23 @@
 import cv2
 import numpy as np
-from webcam import Webcam
+from preparation import Webcam, Database
 
 webcam = Webcam()
 webcam.start()
 
-imgTarget = cv2.imread('lord_of_rings_fellowship.jpg')
-imgTarget2 = cv2.imread('kung_pow.jpg')
-imgOverlay = cv2.imread('lord_of_rings_fellowship_text.png')
-imgOverlay2 =cv2.imread('kung_pow_text.png')
+database = Database()
+
+imgTarget = database.get_imgTarget()
+imgTarget2 = database.get_imgTarget2()
+imgOverlay = database.get_imgTarget_overlay()
+imgOverlay2 = database.get_imgTarget_overlay2()
 
 hT, wT, cT = imgTarget.shape
 hT2, wT2, cT2 = imgTarget2.shape
 
 orb = cv2.ORB_create(nfeatures=1000)
 kp1, des1 = orb.detectAndCompute(imgTarget, None)
-kp2, des2 = orb.detectAndCompute(imgTarget, None)
+kp2, des2 = orb.detectAndCompute(imgTarget2, None)
 #imgTarget = cv2.drawKeypoints(imgTarget, kp1, None)              //debug poster keypoints
 
 
@@ -61,21 +63,34 @@ def stackImages(imgArray,scale,lables=[]):
 while True:
     imgWebcam = webcam.get_current_frame()
     imgAug = imgWebcam.copy()
+    imgAug2 = imgWebcam.copy()
     kpW, desW = orb.detectAndCompute(imgWebcam, None)
     #imgWebcam = cv2.drawKeypoints(imgWebcam, kp2, None)                //debug  webcam keypoints
 
     bf = cv2.BFMatcher()
+
     matches = bf.knnMatch(des1, desW, k=2)
+    matches2 = bf.knnMatch(des2, desW, k=2)
+
     good = []
+    good2 = []
 
     for m,n in matches:
         if m.distance < 0.75 * n.distance:
             good.append(m)
 
+    for m,n in matches2:
+        if m.distance < 0.75 * n.distance:
+            good2.append(m)
+
+    print(len(good2))
+
     #print(len(good))                                                                                                    //number of good matches
     imgFeatures = cv2.drawMatches(imgTarget, kp1, imgWebcam, kpW, good, None, flags=2)
+    imgFeatures2 = cv2.drawMatches(imgTarget2, kp2, imgWebcam, kpW, good2, None, flags=2)
 
     if len(good) > 20:
+        print("entrei lord")
         srcPts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
         dstPts = np.float32([kpW[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
         matrix, mask = cv2.findHomography(srcPts, dstPts, cv2.RANSAC, 5)
@@ -96,10 +111,34 @@ while True:
         #cv2.imshow('mask', maskInv)
         #cv2.imshow('aug', imgAug)
         #cv2.imshow('Aug', imgAug)
-        cv2.imshow('stack', imgStacked)
+        #cv2.imshow('stack', imgStacked)
 
+    elif len(good2) > 20:
+        print("entrei kung")
+        srcPts2 = np.float32([kp2[m.queryIdx].pt for m in good2]).reshape(-1, 1, 2)
+        dstPts2 = np.float32([kpW[m.trainIdx].pt for m in good2]).reshape(-1, 1, 2)
+        matrix2, mask2 = cv2.findHomography(srcPts2, dstPts2, cv2.RANSAC, 5)
+        #print(matrix)                                                                                                         //matrix for debug
 
-    #cv2.imshow('imgFeatures', imgFeatures)                                                             //Debug mode matches
+        pts2 = np.float32([[0, 0], [0,hT2], [wT2, hT2], [wT2, 0]]).reshape(-1, 1, 2)
+        dst2 = cv2.perspectiveTransform(pts2, matrix2)
+        img3 = cv2.polylines(imgWebcam, [np.int32(dst2)], True, (255, 0, 255), 3)
+
+        imgWarp2 = cv2.warpPerspective(imgOverlay2, matrix2, (imgWebcam.shape[1], imgWebcam.shape[0]))
+        #cv2.imshow('img2', img2)                                                                       #//polylines debug (outline)
+        #cv2.imshow('imgWarp', imgWarp)                                                                 #//warp debug
+
+        imgAug2 = cv2.bitwise_or(imgWarp2, imgAug2)
+
+        imgStacked2 = stackImages(([imgWebcam, imgOverlay2, imgTarget2], [imgFeatures2, imgWarp2, imgAug2]), 0.5)
+
+        #cv2.imshow('mask', maskInv)
+        #cv2.imshow('aug', imgAug)
+        #cv2.imshow('Aug', imgAug)
+        #cv2.imshow('stack', imgStacked2)
+
+    #cv2.imshow('imgFeatures', imgFeatures2)                                                             #//Debug mode matches
     cv2.imshow('Poster', imgTarget)
+    cv2.imshow('Poster2', imgTarget2)
     cv2.imshow('Webcam', imgWebcam)
     cv2.waitKey(0)
