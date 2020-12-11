@@ -1,17 +1,25 @@
 import cv2
 import numpy as np
+from webcam import Webcam
 
-cap = cv2.VideoCapture(0)
+webcam = Webcam()
+webcam.start()
+
 imgTarget = cv2.imread('lord_of_rings_fellowship.jpg')
-imgOverlay = cv2.imread('cubesScore.jpeg')
+imgTarget2 = cv2.imread('kung_pow.jpg')
+imgOverlay = cv2.imread('lord_of_rings_fellowship_text.png')
+imgOverlay2 =cv2.imread('kung_pow_text.png')
+
 hT, wT, cT = imgTarget.shape
+hT2, wT2, cT2 = imgTarget2.shape
 
 orb = cv2.ORB_create(nfeatures=1000)
 kp1, des1 = orb.detectAndCompute(imgTarget, None)
+kp2, des2 = orb.detectAndCompute(imgTarget, None)
 #imgTarget = cv2.drawKeypoints(imgTarget, kp1, None)              //debug poster keypoints
 
 
-# stackImages coiso
+# stackImages
 def stackImages(imgArray,scale,lables=[]):
     sizeW= imgArray[0][0].shape[1]
     sizeH = imgArray[0][0].shape[0]
@@ -51,13 +59,13 @@ def stackImages(imgArray,scale,lables=[]):
     return ver
 
 while True:
-    success, imgWebcam = cap.read()
+    imgWebcam = webcam.get_current_frame()
     imgAug = imgWebcam.copy()
-    kp2, des2 = orb.detectAndCompute(imgWebcam, None)
+    kpW, desW = orb.detectAndCompute(imgWebcam, None)
     #imgWebcam = cv2.drawKeypoints(imgWebcam, kp2, None)                //debug  webcam keypoints
 
     bf = cv2.BFMatcher()
-    matches = bf.knnMatch(des1, des2, k=2)
+    matches = bf.knnMatch(des1, desW, k=2)
     good = []
 
     for m,n in matches:
@@ -65,11 +73,11 @@ while True:
             good.append(m)
 
     #print(len(good))                                                                                                    //number of good matches
-    imgFeatures = cv2.drawMatches(imgTarget, kp1, imgWebcam, kp2, good, None, flags=2)
+    imgFeatures = cv2.drawMatches(imgTarget, kp1, imgWebcam, kpW, good, None, flags=2)
 
     if len(good) > 20:
         srcPts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
-        dstPts = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
+        dstPts = np.float32([kpW[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
         matrix, mask = cv2.findHomography(srcPts, dstPts, cv2.RANSAC, 5)
         #print(matrix)                                                                                                         //matrix for debug
 
@@ -78,19 +86,16 @@ while True:
         img2 = cv2.polylines(imgWebcam, [np.int32(dst)], True, (255, 0, 255), 3)
 
         imgWarp = cv2.warpPerspective(imgOverlay, matrix, (imgWebcam.shape[1], imgWebcam.shape[0]))
-        #cv2.imshow('img2', img2)                                                                       //polylines debug (outline)
-        #cv2.imshow('imgWarp', imgWarp)                                                                 //warp debug
+        #cv2.imshow('img2', img2)                                                                       #//polylines debug (outline)
+        #cv2.imshow('imgWarp', imgWarp)                                                                 #//warp debug
 
-        maskNew = np.zeros((imgWebcam.shape[0], imgWebcam.shape[1]), np.uint8)
-        cv2.fillPoly(maskNew, [np.int32(dst)], (255, 255, 255))
-        maskInv = cv2.bitwise_not(maskNew)
-        imgAug = cv2.bitwise_and(imgAug,imgAug, mask=maskInv)
         imgAug = cv2.bitwise_or(imgWarp, imgAug)
 
         imgStacked = stackImages(([imgWebcam, imgOverlay, imgTarget], [imgFeatures, imgWarp, imgAug]), 0.5)
 
         #cv2.imshow('mask', maskInv)
         #cv2.imshow('aug', imgAug)
+        #cv2.imshow('Aug', imgAug)
         cv2.imshow('stack', imgStacked)
 
 
