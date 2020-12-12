@@ -1,6 +1,14 @@
 import cv2
 import numpy as np
 from preparation import Webcam, Database
+import sys
+
+debug = False
+
+if len(sys.argv) == 2:
+    if str(sys.argv[1] == "debug"):
+        debug = True
+
 
 webcam = Webcam()
 webcam.start()
@@ -19,6 +27,7 @@ hT2, wT2, cT2 = imgTarget2.shape
 orb = cv2.ORB_create(nfeatures=1000)
 kp1, des1 = orb.detectAndCompute(imgTarget, None)
 kp2, des2 = orb.detectAndCompute(imgTarget2, None)
+
 #imgTarget = cv2.drawKeypoints(imgTarget, kp1, None)              //debug poster keypoints
 
 
@@ -84,8 +93,9 @@ while True:
         if m.distance < 0.75 * n.distance:
             good2.append(m)
 
-    #print(len(good2))
-    #print(len(good))                                                                                                    //number of good matches
+    if debug:
+        print("Poster1 matches: " + str(len(good)))
+        print("Poster2 matches: " + str(len(good2)))                                                                                                    #//number of good matches
 
     imgFeatures = cv2.drawMatches(imgTarget, kp1, imgWebcam, kpW, good, None, flags=2)
     imgFeatures2 = cv2.drawMatches(imgTarget2, kp2, imgWebcam, kpW, good2, None, flags=2)
@@ -98,7 +108,10 @@ while True:
             matrix, mask = cv2.findHomography(srcPts, dstPts, cv2.RANSAC, 5)
             pts = np.float32([[0, 0], [0,hT], [wT, hT], [wT, 0]]).reshape(-1, 1, 2)
             dst = cv2.perspectiveTransform(pts, matrix)
-            #img2 = cv2.polylines(imgWebcam, [np.int32(dst)], True, (255, 0, 255), 3)
+            if debug:
+                img2 = cv2.polylines(imgWebcam, [np.int32(dst)], True, (255, 0, 255), 3)
+                print("Matrix poster 1")
+                print(matrix)
 
         if len(good2) > 20:
             srcPts2 = np.float32([kp2[m.queryIdx].pt for m in good2]).reshape(-1, 1, 2)
@@ -106,9 +119,10 @@ while True:
             matrix2, mask2 = cv2.findHomography(srcPts2, dstPts2, cv2.RANSAC, 5)
             pts2 = np.float32([[0, 0], [0,hT2], [wT2, hT2], [wT2, 0]]).reshape(-1, 1, 2)
             dst2 = cv2.perspectiveTransform(pts2, matrix2)
-            #img3 = cv2.polylines(imgWebcam, [np.int32(dst2)], True, (255, 0, 255), 3)
-
-        #print(matrix)                                                                                                         //matrix for debug
+            if debug:
+                img3 = cv2.polylines(imgWebcam, [np.int32(dst2)], True, (255, 0, 255), 3)
+                print("Matrix poster 2")
+                print(matrix2)                                                                                                         #//matrix for debug
 
         if len(good) > 20:
             imgWarp = cv2.warpPerspective(imgOverlay, matrix, (imgWebcam.shape[1], imgWebcam.shape[0]))
@@ -129,7 +143,8 @@ while True:
         #cv2.imshow('mask', maskInv)
         #cv2.imshow('aug', imgAug)
         #cv2.imshow('Aug', imgAug)
-        #cv2.imshow('stack', imgStacked)                                                                 #//DEBUG MODE
+        if debug:
+            cv2.imshow('stack', imgStacked)                                                                 #//DEBUG MODE
 
     #cv2.imshow('imgFeatures', imgFeatures2)                                                             //Debug mode matches
     cv2.imshow('Poster', imgTarget)

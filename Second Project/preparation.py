@@ -81,7 +81,7 @@ class Webcam:
 class Database:
     def __init__(self):
         self.imgTarget2 = cv2.imread('lord_of_rings_fellowship.jpg')
-        self.imgTarget = cv2.imread('kung_pow.jpg')
+        self.imgTarget = cv2.imread('kung_pow.png')
         self.imgOverlay2 = cv2.imread('lord_of_rings_fellowship_text.png')
         self.imgOverlay = cv2.imread('kung_pow_text.png')
         self.imgCube = cv2.imread('cube.png')
