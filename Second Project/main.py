@@ -9,7 +9,6 @@ if len(sys.argv) == 2:
     if str(sys.argv[1] == "debug"):
         debug = True
 
-
 webcam = Webcam()
 webcam.start()
 
@@ -28,8 +27,9 @@ orb = cv2.ORB_create(nfeatures=1000)
 kp1, des1 = orb.detectAndCompute(imgTarget, None)
 kp2, des2 = orb.detectAndCompute(imgTarget2, None)
 
-#imgTarget = cv2.drawKeypoints(imgTarget, kp1, None)              //debug poster keypoints
-
+if debug:
+    imgPoints = cv2.drawKeypoints(imgTarget, kp1, None)              #//debug poster keypoints
+    imgPoints2 = cv2.drawKeypoints(imgTarget2, kp2, None)
 
 # stackImages
 def stackImages(imgArray,scale,lables=[]):
@@ -75,7 +75,6 @@ while True:
     imgAug = imgWebcam.copy()
     imgAug2 = imgWebcam.copy()
     kpW, desW = orb.detectAndCompute(imgWebcam, None)
-    #imgWebcam = cv2.drawKeypoints(imgWebcam, kp2, None)                //debug  webcam keypoints
 
     bf = cv2.BFMatcher()
 
@@ -109,7 +108,6 @@ while True:
             pts = np.float32([[0, 0], [0,hT], [wT, hT], [wT, 0]]).reshape(-1, 1, 2)
             dst = cv2.perspectiveTransform(pts, matrix)
             if debug:
-                img2 = cv2.polylines(imgWebcam, [np.int32(dst)], True, (255, 0, 255), 3)
                 print("Matrix poster 1")
                 print(matrix)
 
@@ -120,7 +118,6 @@ while True:
             pts2 = np.float32([[0, 0], [0,hT2], [wT2, hT2], [wT2, 0]]).reshape(-1, 1, 2)
             dst2 = cv2.perspectiveTransform(pts2, matrix2)
             if debug:
-                img3 = cv2.polylines(imgWebcam, [np.int32(dst2)], True, (255, 0, 255), 3)
                 print("Matrix poster 2")
                 print(matrix2)                                                                                                         #//matrix for debug
 
@@ -128,25 +125,21 @@ while True:
             imgWarp = cv2.warpPerspective(imgOverlay, matrix, (imgWebcam.shape[1], imgWebcam.shape[0]))
             imgAug = cv2.bitwise_or(imgWarp, imgAug)
             imgWebcam = cv2.bitwise_or(imgWarp, imgWebcam)
+            img = cv2.polylines(imgAug, [np.int32(dst)], True, (255, 0, 255), 3)
 
         if len(good2) > 20:
             imgWarp2 = cv2.warpPerspective(imgOverlay2, matrix2, (imgWebcam.shape[1], imgWebcam.shape[0]))
             imgAug2 = cv2.bitwise_or(imgWarp2, imgAug2)
             imgWebcam = cv2.bitwise_or(imgWarp2, imgWebcam)
+            img2 = cv2.polylines(imgAug2, [np.int32(dst2)], True, (255, 0, 255), 3)
+
+        if len(good) > 20 and len(good2) > 20:
+            imgStacked = stackImages(([imgFeatures, imgPoints, img], [imgFeatures2, imgPoints2, img2]), 0.5)
 
 
-        #cv2.imshow('img2', img2)                                                                       #//polylines debug (outline)
-        #cv2.imshow('imgWarp', imgWarp)                                                                 #//warp debug
+        if debug and len(good) > 20 and len(good2) > 20:
+            cv2.imshow('stack', imgStacked)                                                                 #//DEBUG MODE STACKED
 
-        imgStacked = stackImages(([imgFeatures, imgWebcam, imgAug], [imgFeatures2, imgWebcam, imgAug2]), 0.5)
-
-        #cv2.imshow('mask', maskInv)
-        #cv2.imshow('aug', imgAug)
-        #cv2.imshow('Aug', imgAug)
-        if debug:
-            cv2.imshow('stack', imgStacked)                                                                 #//DEBUG MODE
-
-    #cv2.imshow('imgFeatures', imgFeatures2)                                                             //Debug mode matches
     cv2.imshow('Poster', imgTarget)
     cv2.imshow('Poster2', imgTarget2)
     cv2.imshow('Webcam', imgWebcam)
