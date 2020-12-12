@@ -90,37 +90,39 @@ while True:
     imgFeatures = cv2.drawMatches(imgTarget, kp1, imgWebcam, kpW, good, None, flags=2)
     imgFeatures2 = cv2.drawMatches(imgTarget2, kp2, imgWebcam, kpW, good2, None, flags=2)
 
-    if len(good) > 20 and len(good2) > 20:
-        srcPts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
-        dstPts = np.float32([kpW[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
-        matrix, mask = cv2.findHomography(srcPts, dstPts, cv2.RANSAC, 5)
+    if len(good) > 20 or len(good2) > 20:
 
-        srcPts2 = np.float32([kp2[m.queryIdx].pt for m in good2]).reshape(-1, 1, 2)
-        dstPts2 = np.float32([kpW[m.trainIdx].pt for m in good2]).reshape(-1, 1, 2)
-        matrix2, mask2 = cv2.findHomography(srcPts2, dstPts2, cv2.RANSAC, 5)
+        if len(good) > 20:
+            srcPts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
+            dstPts = np.float32([kpW[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
+            matrix, mask = cv2.findHomography(srcPts, dstPts, cv2.RANSAC, 5)
+            pts = np.float32([[0, 0], [0,hT], [wT, hT], [wT, 0]]).reshape(-1, 1, 2)
+            dst = cv2.perspectiveTransform(pts, matrix)
+            #img2 = cv2.polylines(imgWebcam, [np.int32(dst)], True, (255, 0, 255), 3)
+
+        if len(good2) > 20:
+            srcPts2 = np.float32([kp2[m.queryIdx].pt for m in good2]).reshape(-1, 1, 2)
+            dstPts2 = np.float32([kpW[m.trainIdx].pt for m in good2]).reshape(-1, 1, 2)
+            matrix2, mask2 = cv2.findHomography(srcPts2, dstPts2, cv2.RANSAC, 5)
+            pts2 = np.float32([[0, 0], [0,hT2], [wT2, hT2], [wT2, 0]]).reshape(-1, 1, 2)
+            dst2 = cv2.perspectiveTransform(pts2, matrix2)
+            #img3 = cv2.polylines(imgWebcam, [np.int32(dst2)], True, (255, 0, 255), 3)
 
         #print(matrix)                                                                                                         //matrix for debug
 
-        pts = np.float32([[0, 0], [0,hT], [wT, hT], [wT, 0]]).reshape(-1, 1, 2)
-        dst = cv2.perspectiveTransform(pts, matrix)
-        #img2 = cv2.polylines(imgWebcam, [np.int32(dst)], True, (255, 0, 255), 3)
+        if len(good) > 20:
+            imgWarp = cv2.warpPerspective(imgOverlay, matrix, (imgWebcam.shape[1], imgWebcam.shape[0]))
+            imgAug = cv2.bitwise_or(imgWarp, imgAug)
+            imgWebcam = cv2.bitwise_or(imgWarp, imgWebcam)
 
+        if len(good2) > 20:
+            imgWarp2 = cv2.warpPerspective(imgOverlay2, matrix2, (imgWebcam.shape[1], imgWebcam.shape[0]))
+            imgAug2 = cv2.bitwise_or(imgWarp2, imgAug2)
+            imgWebcam = cv2.bitwise_or(imgWarp2, imgWebcam)
 
-        pts2 = np.float32([[0, 0], [0,hT2], [wT2, hT2], [wT2, 0]]).reshape(-1, 1, 2)
-        dst2 = cv2.perspectiveTransform(pts2, matrix2)
-        #img3 = cv2.polylines(imgWebcam, [np.int32(dst2)], True, (255, 0, 255), 3)
-
-        imgWarp = cv2.warpPerspective(imgOverlay, matrix, (imgWebcam.shape[1], imgWebcam.shape[0]))
-        imgWarp2 = cv2.warpPerspective(imgOverlay2, matrix2, (imgWebcam.shape[1], imgWebcam.shape[0]))
 
         #cv2.imshow('img2', img2)                                                                       #//polylines debug (outline)
         #cv2.imshow('imgWarp', imgWarp)                                                                 #//warp debug
-
-        imgAug = cv2.bitwise_or(imgWarp, imgAug)
-        imgAug2 = cv2.bitwise_or(imgWarp2, imgAug2)
-
-        imgWebcam = cv2.bitwise_or(imgWarp, imgWebcam)
-        imgWebcam = cv2.bitwise_or(imgWarp2, imgWebcam)
 
         imgStacked = stackImages(([imgFeatures, imgWebcam, imgAug], [imgFeatures2, imgWebcam, imgAug2]), 0.5)
 
