@@ -11,6 +11,7 @@ imgTarget = database.get_imgTarget()
 imgTarget2 = database.get_imgTarget2()
 imgOverlay = database.get_imgTarget_overlay()
 imgOverlay2 = database.get_imgTarget_overlay2()
+cube = database.get_cube()
 
 hT, wT, cT = imgTarget.shape
 hT2, wT2, cT2 = imgTarget2.shape
@@ -102,11 +103,12 @@ while True:
 
         pts = np.float32([[0, 0], [0,hT], [wT, hT], [wT, 0]]).reshape(-1, 1, 2)
         dst = cv2.perspectiveTransform(pts, matrix)
-        img2 = cv2.polylines(imgWebcam, [np.int32(dst)], True, (255, 0, 255), 3)
+        #img2 = cv2.polylines(imgWebcam, [np.int32(dst)], True, (255, 0, 255), 3)
+
 
         pts2 = np.float32([[0, 0], [0,hT2], [wT2, hT2], [wT2, 0]]).reshape(-1, 1, 2)
         dst2 = cv2.perspectiveTransform(pts2, matrix2)
-        img3 = cv2.polylines(imgWebcam, [np.int32(dst2)], True, (255, 0, 255), 3)
+        #img3 = cv2.polylines(imgWebcam, [np.int32(dst2)], True, (255, 0, 255), 3)
 
         imgWarp = cv2.warpPerspective(imgOverlay, matrix, (imgWebcam.shape[1], imgWebcam.shape[0]))
         imgWarp2 = cv2.warpPerspective(imgOverlay2, matrix2, (imgWebcam.shape[1], imgWebcam.shape[0]))
@@ -125,7 +127,7 @@ while True:
         #cv2.imshow('mask', maskInv)
         #cv2.imshow('aug', imgAug)
         #cv2.imshow('Aug', imgAug)
-        cv2.imshow('stack', imgStacked)                                                                 #//DEBUG MODE
+        #cv2.imshow('stack', imgStacked)                                                                 #//DEBUG MODE
 
     #cv2.imshow('imgFeatures', imgFeatures2)                                                             //Debug mode matches
     cv2.imshow('Poster', imgTarget)

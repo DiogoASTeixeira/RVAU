@@ -25,6 +25,7 @@ class Database:
         self.imgTarget = cv2.imread('kung_pow.jpg')
         self.imgOverlay2 = cv2.imread('lord_of_rings_fellowship_text.png')
         self.imgOverlay = cv2.imread('kung_pow_text.png')
+        self.imgCube = cv2.imread('cube.png')
         self.target_score = 5
         self.target2_score = 3
 
@@ -45,3 +46,6 @@ class Database:
 
     def get_target2_score(self):
         return self.target2_score
+
+    def get_cube(self):
+        return self.imgCube
