@@ -29,8 +29,7 @@ class Webcam:
 
             # Find the chessboard corners
             ret, corners = cv2.findChessboardCorners(gray, (7, 7))
-            #print(ret)
-            #print(corners)
+
             # If found corners, add object points and image points
             if ret == True:
                 objpoints.append(objp)
@@ -102,6 +101,3 @@ class Database:
 
     def get_target2_score(self):
         return self.target2_score
-
-    def get_cube(self):
-        return self.imgCube
