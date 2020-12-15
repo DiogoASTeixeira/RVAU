@@ -9,7 +9,7 @@ if len(sys.argv) == 2:
     if str(sys.argv[1] == "debug"):
         debug = True
 
-webcam = Webcam()
+webcam = Webcam(debug)
 webcam.start()
 
 database = Database()
@@ -105,13 +105,13 @@ while True:
         if m.distance < 0.75 * n.distance:
             good2.append(m)
 
-    if debug:
-        print("Poster1 matches: " + str(len(good)))
-        print("Poster2 matches: " + str(len(good2)))                                                                                                    #//number of good matches
-        imgFeatures = cv2.drawMatches(imgTarget, kp1, imgWebcam, kpW, good, None, flags=2)
-        imgFeatures2 = cv2.drawMatches(imgTarget2, kp2, imgWebcam, kpW, good2, None, flags=2)
-
     if len(good) > 20 or len(good2) > 20:
+
+        if debug:
+            print("Poster1 number of matches: " + str(len(good)))
+            print("Poster2 number of matches: " + str(len(good2)))  # //number of good matches
+            imgFeatures = cv2.drawMatches(imgTarget, kp1, imgWebcam, kpW, good, None, flags=2)
+            imgFeatures2 = cv2.drawMatches(imgTarget2, kp2, imgWebcam, kpW, good2, None, flags=2)
 
         if len(good) > 20:
             srcPts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
@@ -150,10 +150,12 @@ while True:
                 img2 = cv2.polylines(imgAug2, [np.int32(dst2)], True, (255, 0, 255), 3)
 
         if debug and len(good) > 20 and len(good2) > 20:
-            imgStacked = stackImages(([imgFeatures, imgPoints], [imgFeatures2, imgPoints2]), 0.5)
-            imgStacked2 = stackImages(([imgWarp, img], [imgWarp2, img2]), 0.5)
-            cv2.imshow('stack', imgStacked)                                                                 #//DEBUG MODE STACKED
-            cv2.imshow('stack2', imgStacked2)
+            imgStacked = stackImages(([imgPoints], [imgPoints2]), 0.5)
+            imgStacked2 = stackImages(([imgFeatures], [imgFeatures2]), 0.5)
+            imgStacked3 = stackImages(([img], [img2]), 0.5)
+            cv2.imshow('Points', imgStacked)                                                                 #//DEBUG MODE STACKED
+            cv2.imshow('Matches', imgStacked2)
+            cv2.imshow('Masks', imgStacked3)
 
     cv2.imshow('Poster', imgTarget)
     cv2.imshow('Poster2', imgTarget2)

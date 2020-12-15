@@ -5,7 +5,7 @@ import numpy as np
 
 class Webcam:
 
-    def __init__(self):
+    def __init__(self, debug):
         IMAGE_PATH = 'chessboard_distortion.jpg'
 
         # termination criteria - stop the algorithm if the accuracy is reached, or after 30 iterations
@@ -41,7 +41,9 @@ class Webcam:
 
                 # Draw and display the corners
                 img = cv2.drawChessboardCorners(img, (7, 7), corners2, ret)
-                cv2.imshow('Chessboard Corners', img)
+
+                if debug:
+                    cv2.imshow('Chessboard Corners', img)
 
                 # gray.shape[::-1] -> vector of integers, containing as many elements as the number of views of the calibration pattern
                 # Each element is he number of points in each view. The elements should all be the same and equal to the number of feature points on the calibration pattern
@@ -49,7 +51,6 @@ class Webcam:
                                                                    criteria)
                 np.savez('camera_matrix', mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
 
-                cv2.waitKey(500)
 
         img = cv2.imread(IMAGE_PATH)
         h, w = img.shape[:2]
@@ -62,9 +63,6 @@ class Webcam:
         dst = dst[y:y + h, x:x + w]
         cv2.imwrite("calibration_result.png", dst)  # save image
 
-        cv2.destroyAllWindows()
-
-        cv2.waitKey()
         self.cap = cv2.VideoCapture(0)
         self.imgWebcam = self.cap.read()[1]
 
