@@ -47,6 +47,8 @@ class Webcam:
                 # Each element is he number of points in each view. The elements should all be the same and equal to the number of feature points on the calibration pattern
                 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None,
                                                                    criteria)
+                np.savez('camera_matrix', mtx=mtx, dist=dist, rvecs=rvecs, tvecs=tvecs)
+
                 cv2.waitKey(500)
 
         img = cv2.imread(IMAGE_PATH)
@@ -84,7 +86,7 @@ class Database:
         self.imgTarget = cv2.imread('kung_pow.png')
         self.imgOverlay2 = cv2.imread('lord_of_rings_fellowship_text.png')
         self.imgOverlay = cv2.imread('kung_pow_text.png')
-        self.imgCube = cv2.imread('cube.png')
+        self.imgCube = cv2.imread('kung_pow_text.png')
         self.target_score = 5
         self.target2_score = 3
 

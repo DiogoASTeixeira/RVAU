@@ -18,6 +18,7 @@ imgTarget = database.get_imgTarget()
 imgTarget2 = database.get_imgTarget2()
 imgOverlay = database.get_imgTarget_overlay()
 imgOverlay2 = database.get_imgTarget_overlay2()
+
 cube = database.get_cube()
 
 hT, wT, cT = imgTarget.shape
@@ -30,6 +31,18 @@ kp2, des2 = orb.detectAndCompute(imgTarget2, None)
 if debug:
     imgPoints = cv2.drawKeypoints(imgTarget, kp1, None)              #//debug poster keypoints
     imgPoints2 = cv2.drawKeypoints(imgTarget2, kp2, None)
+
+def draw(img, corners, imgpts):
+    imgpts = np.int32(imgpts).reshape(-1,2)
+    # draw ground floor in green
+    img = cv2.drawContours(img, [imgpts[:4]],-1,(0,255,0),-3)
+    # draw pillars in blue color
+    for i,j in zip(range(4),range(4,8)):
+        img = cv2.line(img, tuple(imgpts[i]), tuple(imgpts[j]),(255),3)
+    # draw top layer in red color
+    img = cv2.drawContours(img, [imgpts[4:]],-1,(0,0,255),3)
+    return img
+
 
 # stackImages
 def stackImages(imgArray,scale,lables=[]):
@@ -110,6 +123,7 @@ while True:
                 print("Matrix poster 1")
                 print(matrix)
 
+
         if len(good2) > 20:
             srcPts2 = np.float32([kp2[m.queryIdx].pt for m in good2]).reshape(-1, 1, 2)
             dstPts2 = np.float32([kpW[m.trainIdx].pt for m in good2]).reshape(-1, 1, 2)
@@ -131,15 +145,15 @@ while True:
             imgWarp2 = cv2.warpPerspective(imgOverlay2, matrix2, (imgWebcam.shape[1], imgWebcam.shape[0]))
             imgAug2 = cv2.bitwise_or(imgWarp2, imgAug2)
             imgWebcam = cv2.bitwise_or(imgWarp2, imgWebcam)
+
             if debug:
                 img2 = cv2.polylines(imgAug2, [np.int32(dst2)], True, (255, 0, 255), 3)
 
         if debug and len(good) > 20 and len(good2) > 20:
-            imgStacked = stackImages(([imgFeatures, imgPoints, img], [imgFeatures2, imgPoints2, img2]), 0.5)
-
-
-        if debug and len(good) > 20 and len(good2) > 20:
+            imgStacked = stackImages(([imgFeatures, imgPoints], [imgFeatures2, imgPoints2]), 0.5)
+            imgStacked2 = stackImages(([imgWarp, img], [imgWarp2, img2]), 0.5)
             cv2.imshow('stack', imgStacked)                                                                 #//DEBUG MODE STACKED
+            cv2.imshow('stack2', imgStacked2)
 
     cv2.imshow('Poster', imgTarget)
     cv2.imshow('Poster2', imgTarget2)
