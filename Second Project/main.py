@@ -91,20 +91,24 @@ while True:
 
     bf = cv2.BFMatcher()
 
+    # Detect matches for each poster
     matches = bf.knnMatch(des1, desW, k=2)
     matches2 = bf.knnMatch(des2, desW, k=2)
 
     good = []
     good2 = []
 
+    #Select good matches for poster 1
     for m, n in matches:
         if m.distance < 0.75 * n.distance:
             good.append(m)
 
+    #select good matches for poster 2
     for m, n in matches2:
         if m.distance < 0.75 * n.distance:
             good2.append(m)
 
+    #only aavances if more than 20 good matches are found
     if len(good) > 20 or len(good2) > 20:
 
         if debug:
@@ -114,17 +118,19 @@ while True:
             imgFeatures2 = cv2.drawMatches(imgTarget2, kp2, imgWebcam, kpW, good2, None, flags=2)
 
         if len(good) > 20:
+            #calculate matrix and homography for poster 1 and create the mask
             srcPts = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
             dstPts = np.float32([kpW[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
             matrix, mask = cv2.findHomography(srcPts, dstPts, cv2.RANSAC, 5)
             pts = np.float32([[0, 0], [0,hT], [wT, hT], [wT, 0]]).reshape(-1, 1, 2)
             dst = cv2.perspectiveTransform(pts, matrix)
             if debug:
-                print("Matrix poster 1")
+                print("Matrix poster 1")                                                                                    #matrix for debug poster 1
                 print(matrix)
 
 
         if len(good2) > 20:
+            # calculate matrix and homography for poster 2 and creat the mask
             srcPts2 = np.float32([kp2[m.queryIdx].pt for m in good2]).reshape(-1, 1, 2)
             dstPts2 = np.float32([kpW[m.trainIdx].pt for m in good2]).reshape(-1, 1, 2)
             matrix2, mask2 = cv2.findHomography(srcPts2, dstPts2, cv2.RANSAC, 5)
@@ -132,21 +138,23 @@ while True:
             dst2 = cv2.perspectiveTransform(pts2, matrix2)
             if debug:
                 print("Matrix poster 2")
-                print(matrix2)                                                                                                         #//matrix for debug
+                print(matrix2)                                                                                                         #matrix for debug poster 2
 
         if len(good) > 20:
+            #augmentation of the image warping the overlay image with the poster 1
             imgWarp = cv2.warpPerspective(imgOverlay, matrix, (imgWebcam.shape[1], imgWebcam.shape[0]))
             imgAug = cv2.bitwise_or(imgWarp, imgAug)
             imgWebcam = cv2.bitwise_or(imgWarp, imgWebcam)
             if debug:
-                img = cv2.polylines(imgAug, [np.int32(dst)], True, (255, 0, 255), 3)
+                img = cv2.polylines(imgAug, [np.int32(dst)], True, (255, 0, 255), 3)                               #draw polylines for debug mode poester 1
 
         if len(good2) > 20:
+            # augmentation of the image warping the overlay image with the poster 1
             imgWarp2 = cv2.warpPerspective(imgOverlay2, matrix2, (imgWebcam.shape[1], imgWebcam.shape[0]))
             imgAug2 = cv2.bitwise_or(imgWarp2, imgAug2)
             imgWebcam = cv2.bitwise_or(imgWarp2, imgWebcam)
             if debug:
-                img2 = cv2.polylines(imgAug2, [np.int32(dst2)], True, (255, 0, 255), 3)
+                img2 = cv2.polylines(imgAug2, [np.int32(dst2)], True, (255, 0, 255), 3)                            #draw polylines for debug mode poester 2
 
         if debug and len(good) > 20 and len(good2) > 20:
             imgStacked = stackImages(([imgPoints], [imgPoints2]), 0.5)
