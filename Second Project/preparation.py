@@ -24,11 +24,18 @@ class Webcam:
         images = glob.glob('./chessboard_distortion.jpg')
         # print(images)
         for fname in images:
+
             img = cv2.imread(fname)
+            cv2.imshow("Before calibration", img)
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)  # grayscale
 
             # Find the chessboard corners
             ret, corners = cv2.findChessboardCorners(gray, (7, 7))
+
+            print("Ret")
+            print(ret)
+            print("Corners")
+            print(corners)
 
             # If found corners, add object points and image points
             if ret == True:
@@ -41,8 +48,8 @@ class Webcam:
                 # Draw and display the corners
                 img = cv2.drawChessboardCorners(img, (7, 7), corners2, ret)
 
-                if debug:
-                    cv2.imshow('Chessboard Corners', img)
+
+                cv2.imshow('Chessboard Corners', img)
 
                 # gray.shape[::-1] -> vector of integers, containing as many elements as the number of views of the calibration pattern
                 # Each element is he number of points in each view. The elements should all be the same and equal to the number of feature points on the calibration pattern
@@ -61,6 +68,9 @@ class Webcam:
         x, y, w, h = roi
         dst = dst[y:y + h, x:x + w]
         cv2.imwrite("calibration_result.png", dst)  # save image
+
+        cab_res_img = cv2.imread('calibration_result.png')
+        cv2.imshow("After calibration", cab_res_img)
 
         self.cap = cv2.VideoCapture(0)
         self.imgWebcam = self.cap.read()[1]

@@ -6,7 +6,7 @@ import sys
 debug = False
 
 if len(sys.argv) == 2:
-    if str(sys.argv[1] == "debug"):
+    if str(sys.argv[1] == "tutorial"):
         debug = True
 
 webcam = Webcam(debug)
@@ -18,8 +18,6 @@ imgTarget = database.get_imgTarget()
 imgTarget2 = database.get_imgTarget2()
 imgOverlay = database.get_imgTarget_overlay()
 imgOverlay2 = database.get_imgTarget_overlay2()
-
-cube = database.get_cube()
 
 hT, wT, cT = imgTarget.shape
 hT2, wT2, cT2 = imgTarget2.shape
