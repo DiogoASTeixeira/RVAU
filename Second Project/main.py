@@ -84,20 +84,19 @@ while True:
     good = []
     good2 = []
 
-    for m,n in matches:
+    for m, n in matches:
         if m.distance < 0.75 * n.distance:
             good.append(m)
 
-    for m,n in matches2:
+    for m, n in matches2:
         if m.distance < 0.75 * n.distance:
             good2.append(m)
 
     if debug:
         print("Poster1 matches: " + str(len(good)))
         print("Poster2 matches: " + str(len(good2)))                                                                                                    #//number of good matches
-
-    imgFeatures = cv2.drawMatches(imgTarget, kp1, imgWebcam, kpW, good, None, flags=2)
-    imgFeatures2 = cv2.drawMatches(imgTarget2, kp2, imgWebcam, kpW, good2, None, flags=2)
+        imgFeatures = cv2.drawMatches(imgTarget, kp1, imgWebcam, kpW, good, None, flags=2)
+        imgFeatures2 = cv2.drawMatches(imgTarget2, kp2, imgWebcam, kpW, good2, None, flags=2)
 
     if len(good) > 20 or len(good2) > 20:
 
@@ -125,13 +124,15 @@ while True:
             imgWarp = cv2.warpPerspective(imgOverlay, matrix, (imgWebcam.shape[1], imgWebcam.shape[0]))
             imgAug = cv2.bitwise_or(imgWarp, imgAug)
             imgWebcam = cv2.bitwise_or(imgWarp, imgWebcam)
-            img = cv2.polylines(imgAug, [np.int32(dst)], True, (255, 0, 255), 3)
+            if debug:
+                img = cv2.polylines(imgAug, [np.int32(dst)], True, (255, 0, 255), 3)
 
         if len(good2) > 20:
             imgWarp2 = cv2.warpPerspective(imgOverlay2, matrix2, (imgWebcam.shape[1], imgWebcam.shape[0]))
             imgAug2 = cv2.bitwise_or(imgWarp2, imgAug2)
             imgWebcam = cv2.bitwise_or(imgWarp2, imgWebcam)
-            img2 = cv2.polylines(imgAug2, [np.int32(dst2)], True, (255, 0, 255), 3)
+            if debug:
+                img2 = cv2.polylines(imgAug2, [np.int32(dst2)], True, (255, 0, 255), 3)
 
         if debug and len(good) > 20 and len(good2) > 20:
             imgStacked = stackImages(([imgFeatures, imgPoints, img], [imgFeatures2, imgPoints2, img2]), 0.5)
