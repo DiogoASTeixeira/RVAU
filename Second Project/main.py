@@ -145,7 +145,6 @@ while True:
             imgWarp2 = cv2.warpPerspective(imgOverlay2, matrix2, (imgWebcam.shape[1], imgWebcam.shape[0]))
             imgAug2 = cv2.bitwise_or(imgWarp2, imgAug2)
             imgWebcam = cv2.bitwise_or(imgWarp2, imgWebcam)
-
             if debug:
                 img2 = cv2.polylines(imgAug2, [np.int32(dst2)], True, (255, 0, 255), 3)
 
