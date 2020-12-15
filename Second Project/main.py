@@ -66,7 +66,7 @@ def stackImages(imgArray,scale,lables=[]):
 
         for d in range(0, rows):
             for c in range (0, cols):
-                cv2.rectangle(ver,(c*eachImgWidth, eachImgHeight*d), (c*eachImgWidth+len(lables[d]) * 13 + 27, 30 + eachImgHeight * d), (255, 255, 255), cv2.FILLED)
+                cv2.rectangle(ver, (c*eachImgWidth, eachImgHeight*d), (c*eachImgWidth+len(lables[d]) * 13 + 27, 30 + eachImgHeight * d), (255, 255, 255), cv2.FILLED)
                 cv2.putText(ver, lables[d], (eachImgWidth*c+10, eachImgHeight*d+20), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 0, 255), 2)
     return ver
 
@@ -133,7 +133,7 @@ while True:
             imgWebcam = cv2.bitwise_or(imgWarp2, imgWebcam)
             img2 = cv2.polylines(imgAug2, [np.int32(dst2)], True, (255, 0, 255), 3)
 
-        if len(good) > 20 and len(good2) > 20:
+        if debug and len(good) > 20 and len(good2) > 20:
             imgStacked = stackImages(([imgFeatures, imgPoints, img], [imgFeatures2, imgPoints2, img2]), 0.5)
 
 
